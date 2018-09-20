@@ -21,17 +21,27 @@ int psi(int w, int h) {
 struct Dimension {
     int height;
     int width;
+    vector<char> ids;
+    vector<int> orientationIDs;
     vector<Dimension> orients;
 
     vector<Dimension> constructOrientations (int h, int w) {
         vector<Dimension> orients;
         Dimension one = Dimension(h, w);
+        one.orientationIDs.push_back(0);
         orients.push_back(one);
         if (h != w) {
             Dimension two = Dimension(w, h);
+            two.orientationIDs.push_back(1);
             orients.push_back(two);
         }
         return orients;
+    }
+
+    void giveToEachOrient(char id) {
+        for (int i = 0; i < orients.size(); i++) {
+            orients[i].ids.push_back(id);
+        }
     }
 
     Dimension(int h, int w) {
@@ -58,6 +68,10 @@ Dimension horizontalSlice(Dimension one, Dimension two) {
     Dimension newdim;
     newdim.height = one.height + two.height;
     newdim.width = max(one.width, two.width);
+    newdim.orientationIDs = one.orientationIDs;
+    newdim.orientationIDs.insert(newdim.orientationIDs.end(), two.orientationIDs.begin(), two.orientationIDs.end());
+    newdim.ids = one.ids;
+    newdim.ids.insert(newdim.ids.end(), two.ids.begin(), two.ids.end());
     return newdim;
 }
 
@@ -66,6 +80,10 @@ Dimension verticalSlice(Dimension one, Dimension two) {
     Dimension newdim;
     newdim.height = max(one.height, two.height);
     newdim.width = one.width + two.width;
+    newdim.orientationIDs = one.orientationIDs;
+    newdim.orientationIDs.insert(newdim.orientationIDs.end(), two.orientationIDs.begin(), two.orientationIDs.end());
+    newdim.ids = one.ids;
+    newdim.ids.insert(newdim.ids.end(), two.ids.begin(), two.ids.end());
     return newdim;
 }
 
@@ -98,6 +116,7 @@ Dimension horizontalMerge(Dimension one, Dimension two) {
 }
 
 Dimension findBestDim(Dimension d) {
+    cout << "+++++++++++++++++++++" << endl;
     Dimension minD;
     int mini = INT_MAX;
     for (int i = 0; i < d.orients.size(); i++) {
@@ -106,7 +125,15 @@ Dimension findBestDim(Dimension d) {
             minD = d.orients[i];
         }
     }
-    cout << "the dimensions of the enveloping rectangle are " << minD.height << " and " << minD.width << endl;
+    for (int i = 0; i < minD.orientationIDs.size(); i++) {
+        cout << "ID of the rectangle: " << minD.ids[i] << endl;
+        cout << "Orientation: " << minD.orientationIDs[i] << endl;
+        cout << "    ----    " << endl;
+    }
+    cout << "Dimensions of the enveloping rectangle are " << endl;
+    cout << "Height: " << minD.height << " Width: " << minD.width << endl;
+    cout << "====================END==================" << endl;
+
     return minD;
 }
 
@@ -116,7 +143,9 @@ Dimension PEtoEnvelope(vector<char> pe, vector<Dimension> dimensions) {
     Dimension newDim;
     for (int i = 0; i < pe.size(); i++) {
         if (!isOperator(pe[i])) {
-            thestack.push(dimensions[dimCounter]);
+            newDim = dimensions[dimCounter];
+            newDim.giveToEachOrient(pe[i]);
+            thestack.push(newDim);
             dimCounter++;
         } else {
                 Dimension one = thestack.top();
@@ -140,7 +169,7 @@ int main(int argc, char* argv[]) {
 
     string PELong = "4512H3VHV";
     vector<char> PE(PELong.begin(), PELong.end());
-    vector<Dimension> dimensions = { Dimension(5, 2), Dimension(3, 2), Dimension(1, 2), Dimension(1, 1), Dimension(3, 2) };
+    vector<Dimension> dimensions = { Dimension(5, 2), Dimension(2, 3), Dimension(2, 1), Dimension(1, 1), Dimension(2, 3) };
     for (int i = 0; i < dimensions.size(); i++) {
         dimensions[i].setOrients();
     }
