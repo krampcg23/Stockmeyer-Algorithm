@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
 
     string PELong = "4512H3VHV";
     vector<char> PE(PELong.begin(), PELong.end());
-    vector<Dimension> dimensions = { Dimension(5, 2), Dimension(2, 3), Dimension(2, 1), Dimension(1, 1), Dimension(2, 3) };
+    vector<Dimension> dimensions = { Dimension(5, 2), Dimension(2, 3), Dimension(2, 1), Dimension(1, 1), Dimension(3, 2) };
     for (int i = 0; i < dimensions.size(); i++) {
         dimensions[i].setOrients();
     }
